@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>我的世界服务器查询</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #388E3C;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 2rem;
+        }
+        
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem 0;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .description {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: justify;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .search-box {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        
+        .search-box form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+        
+        .search-box button {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .search-box button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-container, .servers-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            width: 100%;
+        }
+        
+        .result-container h3, .servers-container h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+        
+        .badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .api-box {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .api-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .api-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            background-color: #f5f5f5;
+        }
+        
+        .api-box a {
+            display: inline-block;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .api-box a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .server-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .search-box form {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .server-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-cube me-2"></i>我的世界服务器查询</h1>
+            <p class="text-muted">快速查询Minecraft服务器状态和信息</p>
+        </header>
+        
+        <div class="description">
+            <p>Minecraft是一款沙盒游戏，整个游戏没有剧情，玩家在游戏中自由建设和破坏，透过像积木一样来对元素进行组合与拼凑，轻而易举的就能制作出小木屋、城堡甚至城市，玩家可以通过自己创造的作品来体验上帝一般的感觉。在这款游戏里，不仅可以单人娱乐，还可以多人联机，玩家也可以安装一些模组来增加游戏趣味性。</p>
+            <p class="mb-0">我的世界服务器查询，服务器状态查询，查询服务器滚动显示。</p>
+        </div>
+        
+        <div class="search-box">
+            <form id="searchForm">
+                <input type="text" id="ipInput" placeholder="请输入服务器IP地址" autocomplete="off">
+                <button type="submit"><i class="fas fa-search me-2"></i>查询</button>
+            </form>
+        </div>
+        
+        <div id="resultContainer" class="result-container" style="display: none;">
+            <h3><i class="fas fa-server me-2"></i>查询结果</h3>
+            <div id="resultContent"></div>
+        </div>
+        
+        <div class="servers-container">
+            <h3><i class="fas fa-list me-2"></i>热门服务器</h3>
+            <div id="serversLoading" class="loading">
+                <i class="fas fa-spinner fa-spin me-2"></i>加载中...
+            </div>
+            <div id="serversContent"></div>
+        </div>
+        
+        <footer>
+            <p>© 2025 我的世界服务器查询 | 科技岛屿</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 模拟数据 - 用于在API不可用时显示
+        const mockServerData = {
+            logo: "https://mc-api.net/v3/server/favicon/play.hypixel.net",
+            motd: "§aHypixel Network §c[1.8-1.19]",
+            mod: "",
+            p: "69420 / 200000",
+            mp: 200000
+        };
+
+        const mockPopularServers = [
+            {
+                logo: "https://mc-api.net/v3/server/favicon/play.hypixel.net",
+                ip: "play.hypixel.net",
+                motd: "§aHypixel Network §c[1.8-1.19]",
+                p: "69420 / 200000"
+            },
+            {
+                logo: "https://mc-api.net/v3/server/favicon/mc.cubecraft.net",
+                ip: "mc.cubecraft.net",
+                motd: "§bCubeCraft Games §7- §6Arcade Games, Survival Games, Lucky Islands",
+                p: "8654 / 15000"
+            },
+            {
+                logo: "https://mc-api.net/v3/server/favicon/mc.mineplex.com",
+                ip: "mc.mineplex.com",
+                motd: "§6✪ §c§lMINEPLEX §6✪ §a1.8 - 1.19 §7§l【NEW】§aUHC",
+                p: "7921 / 20000"
+            },
+            {
+                logo: "https://mc-api.net/v3/server/favicon/play.pixelmonrealms.com",
+                ip: "play.pixelmonrealms.com",
+                motd: "§9Pixelmon Realms §7- §6精灵宝可梦服务器",
+                p: "2345 / 5000"
+            },
+            {
+                logo: "https://mc-api.net/v3/server/favicon/mc.wynncraft.com",
+                ip: "mc.wynncraft.com",
+                motd: "§7【§b✦§7】 §b§lWYNNCRAFT §7【§b✦§7】 §eThe #1 MMORPG In Minecraft",
+                p: "3712 / 8000"
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const ipParam = urlParams.get('ip');
+            
+            // 如果URL中有IP参数，自动查询
+            if (ipParam) {
+                document.getElementById('ipInput').value = ipParam;
+                queryServer(ipParam);
+            }
+            
+            // 获取热门服务器列表
+            fetchPopularServers();
+            
+            // 处理表单提交
+            document.getElementById('searchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const ipAddress = document.getElementById('ipInput').value.trim();
+                if (ipAddress) {
+                    // 更新URL参数但不刷新页面
+                    const url = new URL(window.location);
+                    url.searchParams.set('ip', ipAddress);
+                    window.history.pushState({}, '', url);
+                    
+                    queryServer(ipAddress);
+                }
+            });
+        });
+        
+        // 查询单个服务器
+        function queryServer(ip) {
+            const resultContainer = document.getElementById('resultContainer');
+            const resultContent = document.getElementById('resultContent');
+            
+            resultContainer.style.display = 'block';
+            resultContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>正在查询服务器信息...</div>';
+            
+            // 尝试使用在线API，如果失败则使用模拟数据
+            fetch(`https://list.mczfw.cn/api/${ip}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应异常');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 确保数据是数组形式并且有元素
+                    if (Array.isArray(data) && data.length > 0) {
+                        renderServerResult(data[0], resultContent);
+                    } else {
+                        throw new Error('未找到服务器信息');
+                    }
+                })
+                .catch(error => {
+                    console.log("API请求失败，使用模拟数据:", error);
+                    // 尝试从备用API获取数据
+                    tryAlternativeAPI(ip, resultContent);
+                });
+        }
+        
+        // 尝试备用API或使用模拟数据
+        function tryAlternativeAPI(ip, resultContent) {
+            // 为了演示，直接使用模拟数据
+            // 实际使用中可以尝试其他Minecraft服务器API
+            
+            // 自定义模拟数据，使用输入的IP
+            const customMockData = {...mockServerData};
+            customMockData.ip = ip;
+            
+            setTimeout(() => {
+                renderServerResult(customMockData, resultContent);
+            }, 500); // 添加短暂延迟模拟网络请求
+        }
+        
+        // 渲染服务器结果
+        function renderServerResult(data, container) {
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>图标</th>
+                            <th>MOTD</th>
+                            <th>位置</th>
+                            <th>在线人数</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img class="server-icon" src="${data.logo}" alt="服务器图标"></td>
+                            <td>${data.motd || '未知'}</td>
+                            <td>${data.city || '未知'}</td>
+                            <td><span class="badge">${data.p || '0'}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            
+            // 仅在使用模拟数据时显示提示信息
+            if (!data.city) {
+                container.innerHTML += `
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        提示：当前使用的是模拟数据，仅用于演示。
+                    </div>
+                `;
+            }
+        }
+        
+        // 获取热门服务器列表
+        function fetchPopularServers() {
+            const serversLoading = document.getElementById('serversLoading');
+            const serversContent = document.getElementById('serversContent');
+            
+            // 尝试使用在线API，如果失败则使用模拟数据
+            fetch('https://list.mczfw.cn/api')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应异常');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        renderPopularServers(data, serversLoading, serversContent);
+                    } else {
+                        throw new Error('未获取到服务器列表');
+                    }
+                })
+                .catch(error => {
+                    console.log("加载热门服务器失败，使用模拟数据:", error);
+                    
+                    // 使用模拟数据
+                    setTimeout(() => {
+                        renderPopularServers(mockPopularServers, serversLoading, serversContent);
+                    }, 500); // 添加短暂延迟模拟网络请求
+                });
+        }
+        
+        // 渲染热门服务器列表
+        function renderPopularServers(data, loadingElement, contentElement) {
+            loadingElement.style.display = 'none';
+            
+            // 生成服务器表格
+            let tableHtml = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>图标</th>
+                            <th>服务器IP地址</th>
+                            <th>MOTD</th>
+                            <th>位置</th>
+                            <th>在线人数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            data.forEach(server => {
+                tableHtml += `
+                    <tr>
+                        <td><img class="server-icon" src="${server.logo}" alt="服务器图标"></td>
+                        <td>${server.ip}</td>
+                        <td>${server.motd}</td>
+                        <td>${server.city || '未知'}</td>
+                        <td><span class="badge">${server.p}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-success query-btn" data-ip="${server.ip}">
+                                查询
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += '</tbody></table>';
+            
+            // 仅在使用模拟数据时显示提示信息
+            if (!data[0].city) {
+                tableHtml += `
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        提示：当前显示的是模拟数据，仅用于演示。
+                    </div>
+                `;
+            }
+            
+            contentElement.innerHTML = tableHtml;
+            
+            // 添加热门服务器查询按钮点击事件
+            document.querySelectorAll('.query-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const ip = this.getAttribute('data-ip');
+                    document.getElementById('ipInput').value = ip;
+                    
+                    // 更新URL参数但不刷新页面
+                    const url = new URL(window.location);
+                    url.searchParams.set('ip', ip);
+                    window.history.pushState({}, '', url);
+                    
+                    queryServer(ip);
+                    // 滚动到结果区域
+                    document.getElementById('resultContainer').scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+    </script>
+</body>
+</html> 
